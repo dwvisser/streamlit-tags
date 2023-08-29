@@ -20,10 +20,10 @@ return (
         })
         .slice(0, 10)
         .map((item) => (
-            <div>
+            <div
               onClick={() => onSearch(item.full_name)}
-              className="dropdown-row">{item.full_name}
-              key={item.full_name}
+              className="dropdown-row"
+              key={item.full_name}> {item.full_name}
             </div>
         ))}
     </div>
