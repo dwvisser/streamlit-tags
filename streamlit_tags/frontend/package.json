@@ -29,6 +29,9 @@
     "styletron-react": "^6.0.1",
     "typescript": "^4"
   },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
