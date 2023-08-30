@@ -12,6 +12,7 @@ import {
     sortAsc,
     getFirstDuplicateOption
 } from './utils';
+import { Streamlit } from "streamlit-component-lib"
 
 export interface IHintProps {
     options: Array<string> | Array<IHintOption>;
@@ -234,7 +235,7 @@ export const Hint: React.FC<IHintProps> = props => {
                 : mainInputRef
         }
     );
-
+    useEffect(() => Streamlit.setFrameHeight())
     return (
         <>
         <div
