@@ -236,6 +236,7 @@ export const Hint: React.FC<IHintProps> = props => {
     );
 
     return (
+        <>
         <div
             className="rah-input-wrapper"
             style={{
@@ -296,6 +297,33 @@ export const Hint: React.FC<IHintProps> = props => {
                         </>
                     )
             }
-        </div>
+            </div>
+            <div className="dropDown">
+                {options.map(item => {
+                    if (typeof (item) === 'string') {
+                        return item;
+                    } else {
+                        return item.label;
+                    }
+                })
+                    .filter(item => {
+                        if (!unModifiedText) return false;
+                        // I modified this to be a little better than .startsWith()
+                        // I also added the replace(" ", "-") to make it more robust
+                        const full_name = item.toLowerCase().replace(" ", "-");
+                        const search_term = unModifiedText.toLowerCase();
+                        return full_name !== search_term &&
+                            full_name.includes(search_term.replace(" ", "-"));
+                    })
+                    .slice(0, 10)
+                    .map((item) => (
+                        <div
+                            onClick={() => setHintTextAndId(item)}
+                            className="dropdown-row"
+                            key={item}> {item}
+                        </div>
+                    ))}
+            </div>
+        </>
     );
 }
