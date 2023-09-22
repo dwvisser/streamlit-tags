@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 
 import cc from "./classnames";
 import Tag from "./tag";
-import {Hint} from "../react-autocomplete-hint";
+import { Hint } from "../react-autocomplete-hint";
 
 
 
 export interface IHintOption {
-    id: string | number;
-    label: string;
+  id: string | number;
+  label: string;
 }
 
 export interface TagsInputProps {
@@ -87,8 +87,8 @@ export const TagsInput = ({
   }, [tags]);
 
   if (maxTags >= 0) {
-      let remainingLimit = Math.max(maxTags, 0)
-      tags = tags.slice(0, remainingLimit)
+    let remainingLimit = Math.max(maxTags, 0)
+    tags = tags.slice(0, remainingLimit)
   }
 
   const handleOnKeyUp = (e) => {
@@ -119,21 +119,21 @@ export const TagsInput = ({
 
   return (
     <div>
-    <div aria-labelledby={name} className={cc("rti--container", RTIContainer)}>
-      {tags.map(tag => (
-        <Tag key={tag} text={tag} remove={onTagRemove} />
-      ))}
-    </div>
-          <Hint options={suggestions} allowTabFill={true}>
-          <input
-              className={cc("rti--input", RTIInput)}
-              type="text"
-              name={name}
-              placeholder={placeHolder}
-              onKeyDown={handleOnKeyUp}
-              onBlur={onBlur}
-      />
-    </Hint>
+      <div aria-labelledby={name} className={cc("rti--container", RTIContainer)}>
+        {tags.map(tag => (
+          <Tag key={tag} text={tag} remove={onTagRemove} />
+        ))}
+      </div>
+      <Hint options={suggestions} allowTabFill={true}>
+        <input
+          className={cc("rti--input", RTIInput)}
+          type="text"
+          name={name}
+          placeholder={placeHolder}
+          onKeyDown={handleOnKeyUp}
+          onBlur={onBlur}
+        />
+      </Hint>
     </div>
   );
 };
