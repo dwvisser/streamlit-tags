@@ -118,12 +118,13 @@ export const TagsInput = ({
   };
 
   return (
+    <div>
     <div aria-labelledby={name} className={cc("rti--container", RTIContainer)}>
       {tags.map(tag => (
         <Tag key={tag} text={tag} remove={onTagRemove} />
       ))}
-
-      <Hint options={suggestions} allowTabFill={true}>
+    </div>
+          <Hint options={suggestions} allowTabFill={true}>
           <input
               className={cc("rti--input", RTIInput)}
               type="text"
