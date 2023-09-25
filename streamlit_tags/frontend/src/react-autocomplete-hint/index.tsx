@@ -59,7 +59,7 @@ export const Hint: React.FC<IHintProps> = props => {
                 console.warn(`react-autocomplete-hint: "${duplicate}" occurs more than once and may cause errors. Options should not contain duplicate values!`);
             }
         }
-    }, []);
+    });
 
     useEffect(() => {
         if (disableHint) {
