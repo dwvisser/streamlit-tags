@@ -92,7 +92,6 @@ export const Hint: React.FC<IHintProps> = props => {
 
     const setHintTextAndId = (text: string) => {
         setText(text);
-
         const match = getMatch(text);
         let hint: string;
 
@@ -104,10 +103,17 @@ export const Hint: React.FC<IHintProps> = props => {
         } else {
             hint = match.label.slice(text.length);
         }
-
         setHint(hint);
         setMatch(match);
         onHint && onHint(match)
+    }
+
+    const selectSuggestion = (text: string) => {
+        setUnmodifiedText('');
+        setText('');
+        setHint(text);
+        setMatch(text);
+        onHint && onHint(text)
     }
 
     const handleOnFill = () => {
@@ -319,7 +325,7 @@ export const Hint: React.FC<IHintProps> = props => {
                     .slice(0, 10)
                     .map((item) => (
                         <div
-                            onClick={() => setHintTextAndId(item)}
+                            onClick={() => selectSuggestion(item)}
                             className="dropdown-row"
                             key={item}> {item}
                         </div>
