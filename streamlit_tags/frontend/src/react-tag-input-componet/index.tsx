@@ -84,7 +84,7 @@ export const TagsInput = ({
 
   useEffect(() => {
     onChange && onChange(tags);
-  }, [tags]);
+  }, [tags]);  // tags is really the only dep to cause this effect
 
   if (maxTags >= 0) {
     let remainingLimit = Math.max(maxTags, 0)

@@ -59,7 +59,7 @@ export const Hint: React.FC<IHintProps> = props => {
                 console.warn(`react-autocomplete-hint: "${duplicate}" occurs more than once and may cause errors. Options should not contain duplicate values!`);
             }
         }
-    });
+    }, []);  // Empty deps means will run only once (twice in development)
 
     useEffect(() => {
         if (disableHint) {
@@ -68,7 +68,7 @@ export const Hint: React.FC<IHintProps> = props => {
 
         const inputStyle = mainInputRef.current && window.getComputedStyle(mainInputRef.current);
         inputStyle && styleHint(inputWrapperRef, hintWrapperRef, hintRef, inputStyle);
-    });
+    });  // No deps means will run on every render
 
     const getMatch = (text: string) => {
         if (!text || text === '') {
@@ -241,7 +241,7 @@ export const Hint: React.FC<IHintProps> = props => {
                 : mainInputRef
         }
     );
-    useEffect(() => Streamlit.setFrameHeight())
+    useEffect(() => Streamlit.setFrameHeight()); // No deps -> runs every render
     return (
         <>
         <div
