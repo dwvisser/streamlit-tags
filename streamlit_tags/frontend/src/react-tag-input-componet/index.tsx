@@ -29,13 +29,13 @@ export interface TagsInputProps {
 setup(React.createElement);
 
 const RTIContainer = css({
-  "--rtiBg": "#fff",
-  "--rtiBorder": "#ccc",
-  "--rtiMain": "#3182ce",
-  "--rtiRadius": "0.375rem",
-  "--rtiS": "0.5rem",
-  "--rtiTag": "#edf2f7",
-  "--rtiTagRemove": "#e53e3e",
+  "--rti-bg": "#fff",
+  "--rti-border": "#ccc",
+  "--rti-main": "#3182ce",
+  "--rti-radius": "0.375rem",
+  "--rti-s": "0.5rem",
+  "--rti-tag": "#edf2f7",
+  "--rti-tag-remove": "#e53e3e",
 
   "*": {
     boxSizing: "border-box",
@@ -66,7 +66,7 @@ const RTIInput = css({
   width: "200%",
 });
 
-const defaultSeprators = ["Enter"];
+const defaultSeparators = ["Enter"];
 
 export const TagsInput = ({
   name,
@@ -101,7 +101,7 @@ export const TagsInput = ({
     }
 
 
-    if (text && (separators || defaultSeprators).includes(e.key)) {
+    if (text && (separators || defaultSeparators).includes(e.key)) {
       if (tags.includes(text)) {
         onExisting && onExisting(text);
         return;
