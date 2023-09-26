@@ -82,6 +82,7 @@ export const TagsInput = ({
 }: TagsInputProps) => {
   let [tags, setTags] = useState(value || []);
 
+  // Call the provided onChange (from keywords.tsx) whenever tags state changes.
   useEffect(() => {
     onChange && onChange(tags);
   }, [tags]);  // tags is really the only dep to cause this effect
@@ -91,29 +92,38 @@ export const TagsInput = ({
     tags = tags.slice(0, remainingLimit)
   }
 
+  const addTag = (text: string) => {
+    if (tags.includes(text)) {
+      // onExisting not provided by keywords.tsx, so always returns
+      onExisting && onExisting(text);
+      return;
+    }
+    // If text is a new tag, add it
+    setTags([...tags, text]);
+  }
+
   const handleOnKeyUp = (e) => {
     e.stopPropagation();
-
     const text = e.target.value;
 
+    // Remove most recent tag if input is empty and backspace was pressed
     if (e.key === "Backspace" && tags.length && !text) {
       setTags(tags.slice(0, -1));
     }
 
-
+    // If ENTER was pressed after some tag text (separators prop not passed in
+    // by keywords.tsx)
     if (text && (separators || defaultSeparators).includes(e.key)) {
-      if (tags.includes(text)) {
-        onExisting && onExisting(text);
-        return;
-      }
-      setTags([...tags, text]);
+      addTag(text);
       e.target.value = "";
       e.preventDefault();
     }
   };
 
   const onTagRemove = (text: string) => {
+    // Replace tags with all but the removed tag
     setTags(tags.filter(tag => tag !== text));
+    // next line does nothing since onRemoved no provided by keywords.tsx
     onRemoved && onRemoved(text);
   };
 
@@ -124,7 +134,7 @@ export const TagsInput = ({
           <Tag key={tag} text={tag} remove={onTagRemove} />
         ))}
       </div>
-      <Hint options={suggestions} allowTabFill={true}>
+      <Hint options={suggestions} allowTabFill={true} addTag={addTag}>
         <input
           className={cc("rti--input", RTIInput)}
           type="text"

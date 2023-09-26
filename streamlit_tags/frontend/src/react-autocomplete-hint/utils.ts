@@ -4,8 +4,7 @@ import { IHintOption } from "./IHintOption";
 type MutableRef<T> = RefCallback<T> | MutableRefObject<T> | null;
 
 export function mergeRefs(...refs: Array<MutableRef<HTMLElement | null>>) {
-    const filteredRefs = refs.filter(Boolean);
-
+    const filteredRefs = refs.filter(Boolean);  // only the non-null ones please
     return (inst: HTMLElement) => {
         for (let ref of filteredRefs) {
             if (typeof ref === 'function') {
@@ -45,16 +44,15 @@ export function sortAsc<T>(a: T, b: T) {
     return 0;
 }
 
-export function getFirstDuplicateOption(array: Array<IHintOption>) {
+// Return null if array has all unique label fields. Otherwise, return the first
+// duplicate label encountered.
+export function getFirstDuplicateOption(array: Array<IHintOption>): string | null {
     let tracker: { [key: string]: boolean } = {};
-
     for (let i = 0; i < array.length; i++) {
         if (tracker[array[i].label]) {
             return array[i].label;
         }
-
         tracker[array[i].label] = true;
     }
-
     return null;
 }

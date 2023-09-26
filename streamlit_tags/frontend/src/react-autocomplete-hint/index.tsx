@@ -19,6 +19,7 @@ export interface IHintProps {
     disableHint?: boolean;
     children: ReactElement;
     allowTabFill?: boolean;
+    addTag;
     onFill?(value: string | IHintOption): void;
     onHint?(value: string | IHintOption | undefined): void;
     valueModifier?(value: string): string;
@@ -35,6 +36,7 @@ export const Hint: React.FC<IHintProps> = props => {
         options,
         disableHint,
         allowTabFill,
+        addTag,
         onFill,
         onHint,
         valueModifier
@@ -46,16 +48,27 @@ export const Hint: React.FC<IHintProps> = props => {
     let mainInputRef = useRef<HTMLInputElement>(null);
     let hintWrapperRef = useRef<HTMLSpanElement>(null);
     let hintRef = useRef<HTMLInputElement>(null);
+
+    // The text that has been typed into the input field.
     const [unModifiedText, setUnmodifiedText] = useState('');
+
+    // Not sure how this relates to the other state values.
     const [text, setText] = useState('');
+
+    // The additional characters that, when appended to text, equals one of the
+    // options prop values. Used for defaultValue prop of .rah-hint input element.
     const [hint, setHint] = useState('');
+
+    // The full match when text and hint are concatenated; equals one of the
+    // options prop values
     const [match, setMatch] = useState<string | IHintOption>();
+
     const [changeEvent, setChangeEvent] = useState<React.ChangeEvent<HTMLInputElement>>();
 
     useEffect(() => {
         if (typeof options[0] === 'object') {
             const duplicate = getFirstDuplicateOption(options as Array<IHintOption>);
-            if (duplicate) {
+            if (duplicate !== null) {
                 console.warn(`react-autocomplete-hint: "${duplicate}" occurs more than once and may cause errors. Options should not contain duplicate values!`);
             }
         }
@@ -70,22 +83,20 @@ export const Hint: React.FC<IHintProps> = props => {
         inputStyle && styleHint(inputWrapperRef, hintWrapperRef, hintRef, inputStyle);
     });  // No deps means will run on every render
 
-    const getMatch = (text: string) => {
+    // Returns the first match if it exists, otherwise returns undefined
+    const getMatch = (text: string): string | IHintOption | undefined => {
         if (!text || text === '') {
             return;
         }
-
         if (typeof (options[0]) === 'string') {
             const match = (options as Array<string>)
                 .filter(x => x.toLowerCase() !== text.toLowerCase() && x.toLowerCase().startsWith(text.toLowerCase()))
                 .sort()[0];
-
             return match;
         } else {
             const match = (options as Array<IHintOption>)
                 .filter(x => x.label.toLowerCase() !== text.toLowerCase() && x.label.toLowerCase().startsWith(text.toLowerCase()))
                 .sort((a, b) => sortAsc(a.label, b.label))[0];
-
             return match;
         }
     };
@@ -95,7 +106,9 @@ export const Hint: React.FC<IHintProps> = props => {
         const match = getMatch(text);
         let hint: string;
 
-        if (!match) {
+        // If hint is set to non-empty value, it is the text that would complete
+        // text to be one of the suggestions from the options prop.
+        if (match === undefined) {
             hint = '';
         }
         else if (typeof match === 'string') {
@@ -105,23 +118,24 @@ export const Hint: React.FC<IHintProps> = props => {
         }
         setHint(hint);
         setMatch(match);
-        onHint && onHint(match)
+        onHint && onHint(match);
     }
 
-    const selectSuggestion = (text: string) => {
+    const selectSuggestion = (selected: string) => {
         setUnmodifiedText('');
         setText('');
-        setHint(text);
-        setMatch(text);
-        onHint && onHint(text)
+        setHint('');
+        setMatch('');
+        onHint && onHint(selected);
+        addTag && addTag(selected);
     }
 
+    // Takes current hint text and makes it the input text
     const handleOnFill = () => {
         if (hint !== '' && changeEvent) {
             changeEvent.target.value = unModifiedText + hint;
             childProps.onChange && childProps.onChange(changeEvent);
             setHintTextAndId('');
-
             onFill && onFill(match!);
         }
     };
@@ -158,11 +172,9 @@ export const Hint: React.FC<IHintProps> = props => {
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setChangeEvent(e);
         e.persist();
-
         setUnmodifiedText(e.target.value);
         const modifiedValue = valueModifier ? valueModifier(e.target.value) : e.target.value;
         setHintTextAndId(modifiedValue);
-
         childProps.onChange && childProps.onChange(e);
     };
 
@@ -172,7 +184,7 @@ export const Hint: React.FC<IHintProps> = props => {
     };
 
     const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        //Only blur it if the new focus isn't the the hint input
+        // Only blur it if the new focus isn't the the hint input
         if (hintRef?.current !== e.relatedTarget) {
             setHintTextAndId('');
             childProps.onBlur && childProps.onBlur(e);
@@ -223,7 +235,10 @@ export const Hint: React.FC<IHintProps> = props => {
         }
     };
 
-    const childRef = cloneElement(child as any).ref;
+    const childRef = cloneElement(child as any).ref;  // ref of child input element
+
+    // TSX props object below uses shorthand where no ": value" means to use that
+    // variable or function as defined in this file.
     const mainInput = cloneElement(
         child,
         {
@@ -244,66 +259,66 @@ export const Hint: React.FC<IHintProps> = props => {
     useEffect(() => Streamlit.setFrameHeight()); // No deps -> runs every render
     return (
         <>
-        <div
-            className="rah-input-wrapper"
-            style={{
-                position: 'relative'
-            }}>
-            {
-                disableHint
-                    ? child
-                    : (
-                        <>
-                            {mainInput}
-                            <span
-                                className="rah-hint-wrapper"
-                                ref={hintWrapperRef}
-                                style={{
-                                    display: 'flex',
-                                    pointerEvents: 'none',
-                                    backgroundColor: 'transparent',
-                                    borderColor: 'transparent',
-                                    boxSizing: 'border-box',
-                                    boxShadow: 'none',
-                                    color: 'rgba(0, 0, 0, 0.35)',
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                }}
-                            >
+            <div
+                className="rah-input-wrapper"
+                style={{
+                    position: 'relative'
+                }}>
+                {
+                    disableHint
+                        ? child
+                        : (
+                            <>
+                                {mainInput}
                                 <span
-                                    className='rah-text-filler'
+                                    className="rah-hint-wrapper"
+                                    ref={hintWrapperRef}
                                     style={{
-                                        visibility: 'hidden',
+                                        display: 'flex',
                                         pointerEvents: 'none',
-                                        whiteSpace: 'pre'
+                                        backgroundColor: 'transparent',
+                                        borderColor: 'transparent',
+                                        boxSizing: 'border-box',
+                                        boxShadow: 'none',
+                                        color: 'rgba(0, 0, 0, 0.35)',
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
                                     }}
                                 >
-                                    {text}
+                                    <span
+                                        className='rah-text-filler'
+                                        style={{
+                                            visibility: 'hidden',
+                                            pointerEvents: 'none',
+                                            whiteSpace: 'pre'
+                                        }}
+                                    >
+                                        {text}
+                                    </span>
+                                    <input
+                                        className="rah-hint"
+                                        ref={hintRef}
+                                        onClick={onHintClick}
+                                        style={{
+                                            pointerEvents: !hint || hint === '' ? 'none' : 'visible',
+                                            background: 'transparent',
+                                            width: '100%',
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            padding: 0,
+                                            margin: 0,
+                                            color: 'rgba(0, 0, 0, 0.50)',
+                                            caretColor: 'transparent'
+                                        }}
+                                        defaultValue={hint}
+                                        tabIndex={-1}
+                                    />
                                 </span>
-                                <input
-                                    className="rah-hint"
-                                    ref={hintRef}
-                                    onClick={onHintClick}
-                                    style={{
-                                        pointerEvents: !hint || hint === '' ? 'none' : 'visible',
-                                        background: 'transparent',
-                                        width: '100%',
-                                        outline: 'none',
-                                        border: 'none',
-                                        boxShadow: 'none',
-                                        padding: 0,
-                                        margin: 0,
-                                        color: 'rgba(0, 0, 0, 0.50)',
-                                        caretColor: 'transparent'
-                                    }}
-                                    defaultValue={hint}
-                                    tabIndex={-1}
-                                />
-                            </span>
-                        </>
-                    )
-            }
+                            </>
+                        )
+                }
             </div>
             <div className="dropDown">
                 {options.map(item => {
@@ -315,8 +330,7 @@ export const Hint: React.FC<IHintProps> = props => {
                 })
                     .filter(item => {
                         if (!unModifiedText) return false;
-                        // I modified this to be a little better than .startsWith()
-                        // I also added the replace(" ", "-") to make it more robust
+                        // I added the replace(" ", "-") to make it more robust
                         const full_name = item.toLowerCase().replace(" ", "-");
                         const search_term = unModifiedText.toLowerCase();
                         return full_name !== search_term &&
