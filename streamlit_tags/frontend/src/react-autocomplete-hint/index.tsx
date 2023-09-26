@@ -320,7 +320,7 @@ export const Hint: React.FC<IHintProps> = props => {
                         const full_name = item.toLowerCase().replace(" ", "-");
                         const search_term = unModifiedText.toLowerCase();
                         return full_name !== search_term &&
-                            full_name.includes(search_term.replace(" ", "-"));
+                            full_name.startsWith(search_term.replace(" ", "-"));
                     })
                     .slice(0, 10)
                     .map((item) => (
