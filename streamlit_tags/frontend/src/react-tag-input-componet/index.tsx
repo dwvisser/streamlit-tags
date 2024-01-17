@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 
 import cc from "./classnames";
 import Tag from "./tag";
-import {Hint} from "../react-autocomplete-hint";
+import { Hint } from "../react-autocomplete-hint";
 
 
 
 export interface IHintOption {
-    id: string | number;
-    label: string;
+  id: string | number;
+  label: string;
 }
 
 export interface TagsInputProps {
@@ -29,13 +29,13 @@ export interface TagsInputProps {
 setup(React.createElement);
 
 const RTIContainer = css({
-  "--rtiBg": "#fff",
-  "--rtiBorder": "#ccc",
-  "--rtiMain": "#3182ce",
-  "--rtiRadius": "0.375rem",
-  "--rtiS": "0.5rem",
-  "--rtiTag": "#edf2f7",
-  "--rtiTagRemove": "#e53e3e",
+  "--rti-bg": "#fff",
+  "--rti-border": "#ccc",
+  "--rti-main": "#3182ce",
+  "--rti-radius": "0.375rem",
+  "--rti-s": "0.5rem",
+  "--rti-tag": "#edf2f7",
+  "--rti-tag-remove": "#e53e3e",
 
   "*": {
     boxSizing: "border-box",
@@ -66,7 +66,7 @@ const RTIInput = css({
   width: "200%",
 });
 
-const defaultSeprators = ["Enter"];
+const defaultSeparators = ["Enter"];
 
 export const TagsInput = ({
   name,
@@ -82,57 +82,68 @@ export const TagsInput = ({
 }: TagsInputProps) => {
   let [tags, setTags] = useState(value || []);
 
+  // Call the provided onChange (from keywords.tsx) whenever tags state changes.
   useEffect(() => {
     onChange && onChange(tags);
-  }, [tags]);
+  }, [tags]);  // tags is really the only dep to cause this effect
 
   if (maxTags >= 0) {
-      let remainingLimit = Math.max(maxTags, 0)
-      tags = tags.slice(0, remainingLimit)
+    let remainingLimit = Math.max(maxTags, 0)
+    tags = tags.slice(0, remainingLimit)
+  }
+
+  const addTag = (text: string) => {
+    if (tags.includes(text)) {
+      // onExisting not provided by keywords.tsx, so always returns
+      onExisting && onExisting(text);
+      return;
+    }
+    // If text is a new tag, add it
+    setTags([...tags, text]);
   }
 
   const handleOnKeyUp = (e) => {
     e.stopPropagation();
-
     const text = e.target.value;
 
+    // Remove most recent tag if input is empty and backspace was pressed
     if (e.key === "Backspace" && tags.length && !text) {
       setTags(tags.slice(0, -1));
     }
 
-
-    if (text && (separators || defaultSeprators).includes(e.key)) {
-      if (tags.includes(text)) {
-        onExisting && onExisting(text);
-        return;
-      }
-      setTags([...tags, text]);
+    // If ENTER was pressed after some tag text (separators prop not passed in
+    // by keywords.tsx)
+    if (text && (separators || defaultSeparators).includes(e.key)) {
+      addTag(text);
       e.target.value = "";
       e.preventDefault();
     }
   };
 
   const onTagRemove = (text: string) => {
+    // Replace tags with all but the removed tag
     setTags(tags.filter(tag => tag !== text));
+    // next line does nothing since onRemoved no provided by keywords.tsx
     onRemoved && onRemoved(text);
   };
 
   return (
-    <div aria-labelledby={name} className={cc("rti--container", RTIContainer)}>
-      {tags.map(tag => (
-        <Tag key={tag} text={tag} remove={onTagRemove} />
-      ))}
-
-      <Hint options={suggestions} allowTabFill={true}>
-          <input
-              className={cc("rti--input", RTIInput)}
-              type="text"
-              name={name}
-              placeholder={placeHolder}
-              onKeyDown={handleOnKeyUp}
-              onBlur={onBlur}
-      />
-    </Hint>
+    <div>
+      <div aria-labelledby={name} className={cc("rti--container", RTIContainer)}>
+        {tags.map(tag => (
+          <Tag key={tag} text={tag} remove={onTagRemove} />
+        ))}
+      </div>
+      <Hint options={suggestions} allowTabFill={true} addTag={addTag}>
+        <input
+          className={cc("rti--input", RTIInput)}
+          type="text"
+          name={name}
+          placeholder={placeHolder}
+          onKeyDown={handleOnKeyUp}
+          onBlur={onBlur}
+        />
+      </Hint>
     </div>
   );
 };
